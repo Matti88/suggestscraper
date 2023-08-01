@@ -1,4 +1,4 @@
-import html_to_xpath as htp
+from suggestscraper import html_to_xpath as htp
 
 ### Data
 simpleHtml_page_1 = """
