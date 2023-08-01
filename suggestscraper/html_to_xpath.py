@@ -1,18 +1,16 @@
-import time
-from bs4 import BeautifulSoup
 from lxml import etree
 import re
 import html_to_json
 import pandas as pd
 from collections import deque
+from bs4 import BeautifulSoup
 
-
-### -------------------------------- EXPERIMENTAL ----------------------------------
+### -------------------------------- MAIN ALGORITHM ----------------------------------
 class node_char:
-    def __init__(self, valore, livello, conta):
-        self.value = valore 
-        self.level = livello
-        self.count = conta
+    def __init__(self, value, level, count):
+        self.value = value 
+        self.level = level
+        self.count = count
 
     def __str__(self):
             return f"<{self.value}, {self.level}, {self.count}>"
@@ -27,7 +25,6 @@ def return_nodes_of_latest_common_root_level(list_popped_out_opening_nodes, leve
         list_common_root_level.append(list_popped_out_opening_nodes[i])
         i -= 1
     return list_common_root_level[::-1]
-
 
 def string_to_arraypath(input_str):
     
@@ -81,7 +78,7 @@ def arraypath_to_xpath(array_levels_and_count):
 def encodedString_to_xpath(input_string):
     
     return arraypath_to_xpath( string_to_arraypath(input_string) )
-### -------------------------------- EXPERIMENTAL ----------------------------------
+### -------------------------------- MAIN ALGORITHM ----------------------------------
 
 
 ## Generic Utility
@@ -95,6 +92,11 @@ def debug_(string_for_debug, Command):
     if Command:
         print(string_for_debug)
         print("--------------------------------------------------------\n")
+
+def read_file(filename):
+    with open(filename, 'r') as f:
+        contents = f.read().replace('\n', '')
+    return contents
 
 
 # map tags to chars
@@ -150,14 +152,6 @@ def get_html_tags(html):
     tags = re.findall(tag_pattern, html)
     return [re.sub(r'\s*[a-zA-Z]+\s*=\s*("[^"]*"|\'[^\']*\')', '', tag) for tag in tags]
 
-def findAllsubstringIndexes(string, substring):
-    indexes = []
-    index = string.find(substring)
-    while index != -1:
-        indexes.append(index)
-        index = string.find(substring, index + 1)
-    return  indexes
-
 def remove_tag_from_html(html):
     remove_non_useful_tags = [ 'script', 'meta','iframe','head','style','path']
     soup = BeautifulSoup(html, 'html.parser')
@@ -166,60 +160,44 @@ def remove_tag_from_html(html):
             tag.decompose()  # removes the tag and its contents from the HTML
     return str(soup)
 
-def read_file(filename):
-    with open(filename, 'r') as f:
-        contents = f.read().replace('\n', '')
-    return contents
-
 def html_to_string(html, tag_map=tag_map):
+    """
+    Description: This functon encodes the HTML into a string of letters representing opening and closing tags
+    Usage: 
+        html: the html code to encode
+    """
     whbnTxt_CLEAN = get_html_tags(html)
 
     whbnTxt_CLEAN_2 = [x for x in whbnTxt_CLEAN if x not in list_self_closing_tags]
     
     return u"".join(list(map(lambda x: tag_map[x], whbnTxt_CLEAN_2)))
-
-def string_to_html(encoded_html, tag_map=tag_map):
-    # reverse tag_map to get a mapping from chars to tags
-    char_map = reverse_dict(tag_map)
-
-    # replace each character with its corresponding tag
-    website_until_div_of_target = ''
-    for char in encoded_html:
-        website_until_div_of_target += "<" + char_map[char] + ">" 
-
-    return website_until_div_of_target
-
+ 
 def remove_self_closing_tags(html):
     pattern = re.compile(r'<[^>]+/>')
     return pattern.sub('', html)
 
-def close_unclosed_tags(html):
-    soup = BeautifulSoup(html, 'html.parser')
-    return str(soup)
 
-def remove_last_closing_encoded_tags(encoded_html, closing_tags=closing_tags):
-    for num in range(len(encoded_html), 0 , -1):
-        if not( encoded_html[num-1] in closing_tags.values()):
-            return encoded_html[0:num]
-
-
-### finding the JsonPath given a dictionary of Key: title of the value and Value: the item to find in the JSONPath
-"""
-This is an example of the dictionary:
-
-thingsToFindNewJSONPath = {
-    "insertionPage": "/iad/immobilien/d/eigentumswohnung/wien/wien-1190-doebling/privat-und-provisionfrei-sehr-schoene-balkon-wohnung-698277247/",
-    "Agency": "Privat",
-    "thumbnail_image": "https://cache.willhaben.at/mmo/7/698/277/247_40030140_hoved.jpg",
-    "sqm": "70",
-    "Title": "Privat und Provisionfrei, sehr schöne Balkon Wohnung",
-    "Address": "1190 Wien, 19. Bezirk, Döbling, Pyrkergasse 1190 Wien",
-    "feature1" : "2",
-    "feature2" : "Balkon, Loggia" ,   
-    "price": "€ 330.000"
-}
-"""
+### JSONPath Utility
 def find_jsonpath(json_data, target_value, path=''):
+    """
+    A recursive function for finding the JSONPath of the given items
+        Usage:
+            json_data -> the JSON translated HTML snippet containing the values to extract
+            target_value -> the Python Dictionary mapping the title of the content to extract with the value present in the snippet
+
+    This is an example of the target_value:
+    target_value = {
+        "insertionPage": "/iad/immobilien/d/eigentumswohnung/wien/wien-1190-doebling/privat-und-provisionfrei-sehr-schoene-balkon-wohnung-698277247/",
+        "Agency": "Privat",
+        "thumbnail_image": "https://cache.willhaben.at/mmo/7/698/277/247_40030140_hoved.jpg",
+        "sqm": "70",
+        "Title": "Privat und Provisionfrei, sehr schöne Balkon Wohnung",
+        "Address": "1190 Wien, 19. Bezirk, Döbling, Pyrkergasse 1190 Wien",
+        "feature1" : "2",
+        "feature2" : "Balkon, Loggia" ,   
+        "price": "€ 330.000"
+    }
+    """
     result = {}
     if isinstance(json_data, dict):
         for key, value in json_data.items():
@@ -237,33 +215,15 @@ def find_jsonpath(json_data, target_value, path=''):
                 result[index] = new_path
     return result
 
-### calculating the xpath and returnng the path from encoded broken html
-def from_html_to_component_section(substring_to_first_component, wholly_loaded_target_page):
-    
-    page_to = string_to_html(substring_to_first_component)
 
-    soup = BeautifulSoup(page_to, 'html.parser')
-
-    root = etree.fromstring(str(soup))
-    tree = etree.ElementTree(root)
-
-    Xpath = ''
-    for e in root.iter():
-        Xpath = tree.getpath(e)
-
-    # to test the limitation of this approach because this findall may take longer than just looping
-    #Xpath = tree.getpath(root.findall('.//')[-1])
-
-    # path to element 
-    page_soup = BeautifulSoup(wholly_loaded_target_page, 'html.parser')
-    dom = etree.HTML(str(page_soup))
-    returned_xpath =  dom.xpath(Xpath) 
-    section_of_page = etree.tostring(returned_xpath[0], pretty_print = True, encoding = str)
-
-    return section_of_page
 
 ### calculating the xpath and returnng the path from encoded broken html
-def from_html_to_component_section2(encoded_substring_to_first_component, dom_):
+def remove_last_closing_encoded_tags(encoded_html, closing_tags=closing_tags):
+    for num in range(len(encoded_html), 0 , -1):
+        if not( encoded_html[num-1] in closing_tags.values()):
+            return encoded_html[0:num]
+
+def from_html_to_component_section(encoded_substring_to_first_component, dom_):
  
     encoded_html_into_string_wo_closing_tags_in_the_end =  remove_last_closing_encoded_tags(encoded_substring_to_first_component)
     result_xpath_translation = encodedString_to_xpath(encoded_html_into_string_wo_closing_tags_in_the_end) 
@@ -302,9 +262,17 @@ def create_pandas_ds_from_collected_insertions( collection_components_html, loca
 
     return pd.DataFrame(collection_of_houseInsertions)
 
-### A Webscraper Class
+### Webscraper Class
 class Webscraper:
     def __init__(self, main_page_file="", component_file="", similarity_tags_count = 5):
+        """
+        This classe initialize the suggestscraper Webscraper.
+        Usage:
+            main_page_file : is either the HTML string or the address of the file's location of the Page to be Scraped
+            component_file : is either the HTML string or the address of the file's location of the Example component file to be scraped
+            similarity_tags_count : is the matching substring lenght. The code will transform the HTML files into long strings and this 
+                                    value indicated how long the substring of the example component has to be
+        """
         
         self.main_page_file = main_page_file # file name of the whole webpage to download
         self.component_file = component_file # file name of the whole 
@@ -318,7 +286,7 @@ class Webscraper:
         
         self.starting_of_codes_similar_not_the_ending = None
         self.indexes_starting_points_component = []
-        self.lenght_similarity_tags = similarity_tags_count 
+        self.lenght_similarity_tags = similarity_tags_count  
 
         #dom tree as rendered by etree
         self.dom  = None
@@ -329,7 +297,6 @@ class Webscraper:
         if component_file != "":
             self.load_component()
         
-
     def load_main_page(self):
         with open(self.main_page_file, "r") as f:
             self.html_main_page = f.read()
@@ -341,19 +308,29 @@ class Webscraper:
             self.encoded_component = html_to_string(self.html_component)
             self.starting_of_codes_similar_not_the_ending = self.encoded_component[0:self.lenght_similarity_tags]
 
+    def findAllsubstringIndexes(string, substring):
+        indexes = []
+        index = string.find(substring)
+        while index != -1:
+            indexes.append(index)
+            index = string.find(substring, index + 1)
+        return  indexes
+
     def find_component_sections(self):
-        self.indexes_starting_points_component = findAllsubstringIndexes(self.encoded_main_page, self.starting_of_codes_similar_not_the_ending)
+        self.indexes_starting_points_component = self.findAllsubstringIndexes(self.encoded_main_page, self.starting_of_codes_similar_not_the_ending)
 
     def list_html_insertions(self):
         self.find_component_sections()
         list_of_matched_components = []
+ 
         for found_component in range(len(self.indexes_starting_points_component)):
-            substring_to_first_component = self.encoded_main_page[0:self.indexes_starting_points_component[found_component]+1]
-            g = from_html_to_component_section(substring_to_first_component, self.html_main_page)
+            encoded_substring_to_first_component = self.encoded_main_page[0:self.indexes_starting_points_component[found_component]+1]
+            g = from_html_to_component_section(encoded_substring_to_first_component, self.dom)
             list_of_matched_components.append(g)
 
+
         return list_of_matched_components
-    
+
     def set_main_page(self, string_new_main_page):
         self.html_main_page = string_new_main_page
         page_soup = BeautifulSoup(self.html_main_page, 'html.parser')
@@ -363,19 +340,5 @@ class Webscraper:
 
     def set_similarity_count(self, similarity_count):
         self.lenght_similarity_tags = similarity_count
-
-class Webscraper2(Webscraper):
  
-    def list_html_insertions(self):
-        self.find_component_sections()
-        list_of_matched_components = []
  
-        for found_component in range(len(self.indexes_starting_points_component)):
-            
-            encoded_substring_to_first_component = self.encoded_main_page[0:self.indexes_starting_points_component[found_component]+1]
-            
-            g = from_html_to_component_section2(encoded_substring_to_first_component, self.dom)
- 
-            list_of_matched_components.append(g)
-        
-        return list_of_matched_components
