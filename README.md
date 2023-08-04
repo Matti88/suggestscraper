@@ -1,7 +1,10 @@
 # SuggestScraper
 A Python library that works with the developer suggestions. Suggestions because they are inputs from the user but the rest is automatic
 
-![Alt text](asset/suggestScraper.jpg)
+<!-- Adjust the width and height attributes as per your desired scale -->
+<div style="display: flex; justify-content: center;">
+<img src="asset/suggestScraper.jpg" alt="Mental Suggestion" width="55%" height=auto>
+</div>
 
 ## What is SuggestScraper
 Introducing "SuggestScraper" – an innovative Python library inspired by the acclaimed [Autoscraper](https://github.com/alirezamika/autoscraper). Unlike Autoscraper, SuggestScraper brings a fresh approach to web scraping, requiring the programmer to provide two crucial files for optimal performance. 
