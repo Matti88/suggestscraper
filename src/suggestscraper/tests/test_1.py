@@ -1,3 +1,4 @@
+import pytest
 from suggestscraper import html_to_xpath as htp
 
 ### Data
@@ -47,24 +48,18 @@ simpleHtml_page_4= """
 """
 
 ### Testing
-testDict = {
+test_data = {
     '//body[1]/div[1]/div[4]': simpleHtml_page_1,
     '//body[1]/div[1]/div[2]': simpleHtml_page_2,
     '//body[1]/div[1]/div[3]/div[1]': simpleHtml_page_3,
     '//body[1]/div[2]/div[1]/p[1]': simpleHtml_page_4,
-
 }
 
-for k,v in testDict.items():
+@pytest.mark.parametrize("xpath, html", test_data.items())
+def test_html_to_xpath(xpath, html):
+    encoded_html_into_string = htp.html_to_string(html)
+    encoded_html_into_string_wo_closing_tags_in_the_end = htp.remove_last_closing_encoded_tags(encoded_html_into_string)
+    result_xpath_translation = htp.encodedString_to_xpath(encoded_html_into_string_wo_closing_tags_in_the_end) 
 
-	encoded_html_into_string = htp.html_to_string(v)
-	encoded_html_into_string_wo_closing_tags_in_the_end =  htp.remove_last_closing_encoded_tags(encoded_html_into_string)
-	result_xpath_translation = htp.encodedString_to_xpath(encoded_html_into_string_wo_closing_tags_in_the_end) 
-		
-
-	if k == result_xpath_translation:
-		print(f'TestPass: for {k} and {v}\n\n--------------')
-	else:
-		print(f'Tesfail : for {k} and {v}\n\n--------------')
-        
+    assert xpath == result_xpath_translation, f"Test failed for {xpath} and {html}"
 
