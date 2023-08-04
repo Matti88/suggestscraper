@@ -100,28 +100,29 @@ def read_file(filename):
 
 
 # map tags to chars
-tag_map = {'/a': 'A','/b': 'B','/body': 'C','/button': 'D','/div': 'E','/footer': 'F','/form': 'G','/g': 'H','/h': 'I','/head': 'J','/header': 'K','/html': 'L','/iframe': 'M','/img': 'N',
-           '/input': 'O','/label': 'P','/li': 'Q','/link': 'R','/meta': 'S','/nav': 'T','/next': 'U','/noscript': 'V','/option': 'W','/p': 'X','/path': 'Y','/rect': 'Z',
-           
-           '/script': 'a'
-           
-           ,'/select': 'b','/span': 'c','/strong': 'd',
-           '/article':"{",'/style': 'e','/svg': 'f','/title': 'g','/ul': 'h','/source':"-" ,'/hr':">",'/section':"]",'/picture':":", "/circle": "("
-           
-           ,'a': 'i','b': 'j','body': 'k','button': 'l','div': 'm','footer': 'n','form': 'o','g': 'p','h': 'q','head': 'r','header': 's','html': 't','iframe': 'u'
-           ,'img': 'v','input': 'w','label': 'x','li': 'y','link': 'z',
-            'meta': '1'
-            ,'nav': '2','next': '3','noscript': '4','option': '5','p': '6','path': '7','rect': '8'
-           ,'script': '9'
-           ,'select': '0','span': '#','strong': '$','style': '%','svg': '&','title': '^','ul': '*','article':"~"
-           ,'section':"`",'hr':"[",'picture':";",'source':"=",'br':"+","circle": ")",
+tag_map = {'/a': 'A','/b': 'B','/body': 'C','/button': 'D','/div': 'E','/footer': 'F','/form': 'G'
+           ,'/g': 'H','/h': 'I','/head': 'J','/header': 'K','/html': 'L','/iframe': 'M','/img': 'N',
+           '/input': 'O','/label': 'P','/li': 'Q','/link': 'R','/meta': 'S','/nav': 'T','/next': 'U',
+           '/noscript': 'V','/option': 'W','/p': 'X','/path': 'Y','/rect': 'Z',
+           '/script': 'a','/select': 'b','/span': 'c','/strong': 'd',
+           '/article':"{",'/style': 'e','/svg': 'f','/title': 'g','/ul': 'h',
+           '/source':"-" ,'/hr':">",'/section':"]",'/picture':":", "/circle": "(",
+           'a': 'i','b': 'j','body': 'k','button': 'l','div': 'm','footer': 'n','form': 'o',
+           'g': 'p','h': 'q','head': 'r','header': 's','html': 't','iframe': 'u',
+           'img': 'v','input': 'w','label': 'x','li': 'y','link': 'z' ,'rect': '8','script': '9',
+           'meta': '1','nav': '2','next': '3','noscript': '4','option': '5','p': '6','path': '7',
+           'select': '0','span': '#','strong': '$','style': '%','svg': '&','title': '^','ul': '*','article':"~",
+           'section':"`",'hr':"[",'picture':";",'source':"=",'br':"+","circle": ")"
            }
 
-opening_tags = {'a': 'i','b': 'j','body': 'k','button': 'l','div': 'm','footer': 'n','form': 'o','g': 'p','h': 'q','head': 'r','header': 's','html': 't','iframe': 'u'
-           ,'img': 'v','input': 'w','label': 'x','li': 'y','link': 'z','meta': '1','nav': '2','next': '3','noscript': '4','option': '5','p': '6','path': '7','rect': '8'
-           ,'script': '9'
-           ,'select': '0','span': '#','strong': '$','style': '%','svg': '&','title': '^','ul': '*','article':"~"
-           ,'section':"`",'hr':"[",'picture':";",'source':"=",'br':"+","circle": ")",}
+opening_tags = {'a': 'i','b': 'j','body': 'k','button': 'l','div': 'm','footer': 'n','form': 'o',
+                'g': 'p','h': 'q','head': 'r','header': 's','html': 't','iframe': 'u',
+                'img': 'v','input': 'w','label': 'x','li': 'y','link': 'z','meta': '1','nav': '2',
+                'next': '3','noscript': '4','option': '5','p': '6','path': '7','rect': '8',
+                'script': '9','select': '0','span': '#','strong': '$','style': '%','svg': '&',
+                'title': '^','ul': '*','article':"~",'section':"`",'hr':"[",'picture':";",
+                'source':"=",'br':"+","circle": ")"
+                }
 
 closing_tags = {'/a': 'A','/b': 'B','/body': 'C','/button': 'D','/div': 'E','/footer': 'F','/form': 'G','/g': 'H','/h': 'I','/head': 'J','/header': 'K','/html': 'L','/iframe': 'M','/img': 'N',
            '/input': 'O','/label': 'P','/li': 'Q','/link': 'R','/meta': 'S','/nav': 'T','/next': 'U','/noscript': 'V','/option': 'W','/p': 'X','/path': 'Y','/rect': 'Z',
@@ -227,9 +228,8 @@ def from_html_to_component_section(encoded_substring_to_first_component, dom_):
  
     encoded_html_into_string_wo_closing_tags_in_the_end =  remove_last_closing_encoded_tags(encoded_substring_to_first_component)
     result_xpath_translation = encodedString_to_xpath(encoded_html_into_string_wo_closing_tags_in_the_end) 
-
-    returned_componetn_by_xpath =  dom_.xpath(result_xpath_translation)
-    section_of_page = etree.tostring(returned_componetn_by_xpath[0], pretty_print = True, encoding = str)
+    returned_component_by_xpath =  dom_.xpath(result_xpath_translation)
+    section_of_page = etree.tostring(returned_component_by_xpath[0], pretty_print = True, encoding = str)
 
     return section_of_page
 
