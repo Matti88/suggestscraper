@@ -43,8 +43,7 @@ The second file houses a JSON object acting as a powerful map, linking the "Titl
     "feature1" : "2",
     "feature2" : "Balkon, Loggia" ,   
     "price": "€ 330.000"
-}
-...        
+}        
 ```
 
 With the help of this JSON file, SuggestScraper efficiently handles the post-processing aspect, eliminating the need for manual assignment of new names to the "discovered" JSON paths. 
