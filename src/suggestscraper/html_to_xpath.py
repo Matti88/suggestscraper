@@ -327,8 +327,6 @@ class Webscraper:
             encoded_substring_to_first_component = self.encoded_main_page[0:self.indexes_starting_points_component[found_component]+1]
             g = from_html_to_component_section(encoded_substring_to_first_component, self.dom)
             list_of_matched_components.append(g)
-
-
         return list_of_matched_components
 
     def set_main_page(self, string_new_main_page):

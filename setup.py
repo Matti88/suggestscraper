@@ -6,11 +6,11 @@ from setuptools import find_packages, setup
 here = path.abspath(path.dirname(__file__))
 
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
-    long_description = f.read()
+    long_description = f.read() 
 
 setup(
-    name="autoscraper",
-    version="0.0.01",
+    name="suggestscraper",
+    version="0.0.1",
     description="Yet another way to Web Scrape with Python, just a couple of suggestions!",
     long_description_content_type="text/markdown",
     long_description=long_description,
@@ -19,7 +19,7 @@ setup(
     author_email="matteo.montanari25@gmail.com",
     license="MIT",
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
     ],

@@ -1,2 +1,4 @@
 .pytests_cache
 __pycache__
+/dist
+/suggestscraper.egg-info
