@@ -4,19 +4,21 @@ import html_to_json
 import pandas as pd
 from collections import deque
 from bs4 import BeautifulSoup
+import json
+import os
 
 ### -------------------------------- MAIN ALGORITHM ----------------------------------
-class node_char:
+class NodeCharacter:
     def __init__(self, value, level, count):
-        self.value = value 
+        self.value = value
         self.level = level
         self.count = count
 
     def __str__(self):
-            return f"<{self.value}, {self.level}, {self.count}>"
-    
+        return f"<{self.value}, {self.level}, {self.count}>"
+
     def __repr__(self):
-            return f"<{self.value}, {self.level}, {self.count}>"
+        return f"<{self.value}, {self.level}, {self.count}>"
  
 def return_nodes_of_latest_common_root_level(list_popped_out_opening_nodes, level_criterium):
     list_common_root_level = []
@@ -40,7 +42,7 @@ def string_to_arraypath(input_str):
             popped_out_stack_latest_root = return_nodes_of_latest_common_root_level(popped_out_stack, levelCount - 1 )
             count = sum(map( lambda x : True if x.value == c and x.level == levelCount else False ,  popped_out_stack_latest_root)) 
             # creating the node character with 1) the value itself 2) level count that is tracking the depth 3) the count of the same opening chars as calculated the line before
-            node_ = node_char(c, levelCount, count+1)
+            node_ = NodeCharacter(c, levelCount, count+1)
             # adding to the final stack
             stack.append(node_)
             # adding one more level down the tree because the char tested as "opening char"
@@ -216,6 +218,34 @@ def find_jsonpath(json_data, target_value, path=''):
                 result[index] = new_path
     return result
 
+def generate_map_title_to_JSON_path(html_file_path, json_file_path ):
+
+
+    # loading the new example file and generate the extraction JSONPath map
+
+    exampleJsonfied = ""
+    with open(html_file_path, "r") as doc:
+        exampleHtml = doc.read()
+        exampleJsonfied = html_to_json.convert(exampleHtml)
+        
+    # Open the JSON file for reading
+    thingsToFindNewJSONPath = {}
+    
+    with open(json_file_path, 'r') as file:
+        # Load the JSON data into a Python dictionary
+        thingsToFindNewJSONPath = json.load(file)
+
+    locations_of_data = {}
+    for key, value in  thingsToFindNewJSONPath.items():
+        JSONPath_ = find_jsonpath(exampleJsonfied, value)
+        keys_to_JSONPath = list(JSONPath_.keys())
+        if len(keys_to_JSONPath) > 1 and '_value' in keys_to_JSONPath:
+            locations_of_data[key] = JSONPath_['_value']
+        else:
+            locations_of_data[key] = JSONPath_[keys_to_JSONPath[0]]
+    
+    return locations_of_data
+
 
 
 ### calculating the xpath and returnng the path from encoded broken html
@@ -262,11 +292,11 @@ def create_pandas_ds_from_collected_insertions( collection_components_html, loca
 
     return pd.DataFrame(collection_of_houseInsertions)
 
-### Webscraper Class
-class Webscraper:
-    def __init__(self, main_page_file="", component_file="", similarity_tags_count = 5):
+### Suggestscraper Class
+class Suggestscraper:
+    def __init__(self, main_page_file, component_file, similarity_tags_count = 5):
         """
-        This classe initialize the suggestscraper Webscraper.
+        This classe initialize the suggestscraper Suggestscraper.
         Usage:
             main_page_file : is either the HTML string or the address of the file's location of the Page to be Scraped
             component_file : is either the HTML string or the address of the file's location of the Example component file to be scraped
@@ -301,6 +331,9 @@ class Webscraper:
         with open(self.main_page_file, "r") as f:
             self.html_main_page = f.read()
             self.encoded_main_page = html_to_string(self.html_main_page)
+            page_soup = BeautifulSoup(self.html_main_page, 'html.parser')
+            self.dom = etree.HTML(str(page_soup))
+
 
     def load_component(self):
         with open(self.component_file, "r") as f:
@@ -308,7 +341,7 @@ class Webscraper:
             self.encoded_component = html_to_string(self.html_component)
             self.starting_of_codes_similar_not_the_ending = self.encoded_component[0:self.lenght_similarity_tags]
 
-    def findAllsubstringIndexes(string, substring):
+    def findAllsubstringIndexes(self, string, substring):
         indexes = []
         index = string.find(substring)
         while index != -1:
@@ -319,7 +352,7 @@ class Webscraper:
     def find_component_sections(self):
         self.indexes_starting_points_component = self.findAllsubstringIndexes(self.encoded_main_page, self.starting_of_codes_similar_not_the_ending)
 
-    def list_html_insertions(self):
+    def list_found_html_sections(self):
         self.find_component_sections()
         list_of_matched_components = []
  
@@ -329,12 +362,6 @@ class Webscraper:
             list_of_matched_components.append(g)
         return list_of_matched_components
 
-    def set_main_page(self, string_new_main_page):
-        self.html_main_page = string_new_main_page
-        page_soup = BeautifulSoup(self.html_main_page, 'html.parser')
-        self.dom = etree.HTML(str(page_soup))
-
-        self.encoded_main_page = html_to_string(string_new_main_page) 
 
     def set_similarity_count(self, similarity_count):
         self.lenght_similarity_tags = similarity_count

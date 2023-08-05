@@ -47,21 +47,21 @@ def test_create_pandas_ds_from_collected_insertions():
 
 
 
-def test_Webscraper():
+def test_Suggestscraper():
  
     # Assuming you have test HTML files for the main_page and component_file.
     main_page_file = "src/suggestscraper/tests/example_main_page.html"
     component_file = "src/suggestscraper/tests/example_component.html"
 
-    scraper = htp.Webscraper(main_page_file=main_page_file, component_file=component_file, similarity_tags_count=5)
+    scraper = htp.Suggestscraper(main_page_file=main_page_file, component_file=component_file, similarity_tags_count=5)
 
-    assert scraper.html_main_page is not None, "Failed test_Webscraper"
-    assert scraper.html_component is not None, "Failed test_Webscraper"
-    assert scraper.lenght_similarity_tags == 5, "Failed test_Webscraper"
+    assert scraper.html_main_page is not None, "Failed test_Suggestscraper"
+    assert scraper.html_component is not None, "Failed test_Suggestscraper"
+    assert scraper.lenght_similarity_tags == 5, "Failed test_Suggestscraper"
 
     scraper.set_similarity_count(10)
-    assert scraper.lenght_similarity_tags == 10, "Failed test_Webscraper"
+    assert scraper.lenght_similarity_tags == 10, "Failed test_Suggestscraper"
 
     new_html_main_page = "<html><body><h1>New Page</h1></body></html>"
     scraper.set_main_page(new_html_main_page)
-    assert scraper.html_main_page == new_html_main_page, "Failed test_Webscraper"
+    assert scraper.html_main_page == new_html_main_page, "Failed test_Suggestscraper"
