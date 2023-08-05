@@ -49,6 +49,53 @@ The second file houses a JSON object acting as a powerful map, linking the "Titl
 }        
 ```
 
+### Usage
+The usage of the SuggestScraper is very simple. First we need to get the path to the files for 
+
+  1. The Example Component that is the target for the download
+  2. The Map of the Title of the values and the example values that are in the Example Component File 
+
+```py
+
+# files needed for the exercise
+component_url = "../tests/example_component.html"
+items_to_extract = "../tests/itemsToExtract.json"
+
+# From JSON map we generate a new map for finding the values in the HTML code
+jsonPath_data_location = htp.generate_map_title_to_JSON_path(component_url_, items_to_extract_ )
+
+# Setting SuggestScraper object
+suggestScraper_ = htp.Suggestscraper(
+                                main_page_file= {{accessed by Selenium }},
+                                component_file=component_url_
+                                )
+
+# List of the all the HTML sections that were found with the suggescraper object
+collection_different_components_html = suggestScraper_.list_found_html_sections()
+
+# tranform all the HTML insertion into dataframe also thanks to the jsonPath_data_location
+dataframe_collected_items = htp.create_pandas_ds_from_collected_insertions(
+                                    collection_different_components_html, 
+                                    jsonPath_data_location
+                                    )
+
+# printing the collected data from the multiple insertions present in the page
+print(dataframe_collected_items)
+
+```
+
+If you run the example in the example folder:
+```bash
+$ python examples/houses_at.py
+                                       insertionPage                              Agency                                    thumbnail_image  ... feature1        price                feature2
+0  /iad/immobilien/d/eigentumswohnung/wien/wien-1...                      KOI Immobilien  https://cache.willhaben.at/mmo/3/691/616/723_-...  ...        1    € 279.000                     NaN
+1  /iad/immobilien/d/eigentumswohnung/wien/wien-1...                      NEW Immobilien  https://cache.willhaben.at/mmo/1/700/412/031_-...  ...        3    € 320.000                     NaN
+2  /iad/immobilien/d/eigentumswohnung/wien/wien-1...  PlanetHome Immobilien Austria GmbH  https://cache.willhaben.at/mmo/3/647/027/243_-...  ...        2    € 890.000                Terrasse
+3  /iad/immobilien/d/eigentumswohnung/wien/wien-1...  PlanetHome Immobilien Austria GmbH  https://cache.willhaben.at/mmo/7/574/722/427_2...  ...        4  € 2.350.000  Terrasse, Dachterrasse
+4  /iad/immobilien/d/eigentumswohnung/wien/wien-1...                     3SI Makler GmbH  https://cache.willhaben.at/mmo/4/694/163/244_6...  ...        1    € 219.000            Dachterrasse
+```
+
+
 With the help of this JSON file, SuggestScraper efficiently handles the post-processing aspect, eliminating the need for manual assignment of new names to the "discovered" JSON paths. 
 
 ## What SuggestScraper does?
