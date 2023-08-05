@@ -3,7 +3,7 @@ A Python library that works with the developer suggestions. Suggestions because 
 
 <!-- Adjust the width and height attributes as per your desired scale -->
 <div style="display: flex; justify-content: center;">
-<img src="asset/suggestScraper.jpg" alt="Mental Suggestion" width="55%" height=auto>
+<img src="https://raw.githubusercontent.com/Matti88/suggestscraper/main/.github/images/suggestScraper.jpg" alt="Mental Suggestion" width="55%" height=auto>
 </div>
 
 ## What is SuggestScraper
